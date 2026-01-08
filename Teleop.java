@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 // @TeleOp annotation tells the robot controller this is a teleoperated program
 @TeleOp
@@ -16,12 +17,13 @@ public class Teleop extends LinearOpMode {
         // ==========================
         // 1. Hardware Initialization
         // ==========================
-        // Declare and map each motor to its configuration name in the Robot Controller app
-        // Make sure these strings match the motor names you set in the configuration file
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeftMotor");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeftMotor");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRightMotor");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRightMotor");
+        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
+        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeft");
+        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
+        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRight");
+        DcMotor frontIntakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
+        Servo servoTest = hardwareMap.servo.get("servoTest");
 
         // ==========================
         // 2. Motor Direction Setup
@@ -72,6 +74,13 @@ public class Teleop extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+            // --------------------------
+            // e) Intake Servo
+            // --------------------------
+
+
+
         }
     }
 }
