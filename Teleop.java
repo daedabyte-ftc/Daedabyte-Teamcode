@@ -7,16 +7,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
-// @TeleOp annotation tells the robot controller this is a teleoperated program
 @TeleOp
 public class Teleop extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        // ==========================
-        // 1. Hardware Initialization
-        // ==========================
+        //===========  Initialize hardware ===========//
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeft");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
@@ -25,11 +22,7 @@ public class Teleop extends LinearOpMode {
         DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
         Servo servoTest = hardwareMap.servo.get("servoTest");
 
-        // ==========================
-        // 2. Motor Direction Setup
-        // ==========================
-        // Reverse the right side motors because mecanum wheels spin in opposite directions
-        // If your robot drives backwards when you push forward, reverse the left side instead
+        //reverse right motors
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
