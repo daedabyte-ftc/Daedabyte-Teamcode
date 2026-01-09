@@ -91,7 +91,7 @@ public class Teleop extends LinearOpMode {
                 frontIntakeMotor.setPower(-1);
             }
             else {
-                launcherMotor.setPower(0);
+                frontIntakeMotor.setPower(0);
             }
 
             // --------------------------
