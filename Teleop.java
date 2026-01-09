@@ -14,17 +14,26 @@ public class Teleop extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         //===========  Initialize hardware ===========//
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("frontLeft");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("backLeft");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("frontRight");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("backRight");
+        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+        DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
+        DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
+        DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
         DcMotor frontIntakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
-        Servo servoTest = hardwareMap.servo.get("servoTest");
+        //Servo servoTest = hardwareMap.servo.get("servoTest");
 
-        //reverse right motors
+        // motor directions (per-motor, verified)
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        // ensure motors stop immediately when power is zero
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         // ==========================
         // 3. Wait for Driver to Start
@@ -41,20 +50,18 @@ public class Teleop extends LinearOpMode {
             // --------------------------
             // a) Read joystick inputs
             // --------------------------
-            double y = -gamepad1.left_stick_y; // Forward/backward; negative because joystick Y is reversed
-            double x = gamepad1.left_stick_x * 1.1; // Left/right strafing; multiplied by 1.1 to compensate for imperfect strafing
-            double rx = gamepad1.right_stick_x; // Rotation (turning) input from the right joystick
+            double y = -gamepad1.left_stick_y; // Forward/backward
+            double x = gamepad1.left_stick_x;  // Left/right strafing
+            double rx = gamepad1.right_stick_x; // Rotation (left/right)
 
             // --------------------------
             // b) Calculate denominator for scaling
             // --------------------------
-            // Ensures that the motor powers stay within the [-1, 1] range while maintaining ratios
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
             // --------------------------
             // c) Calculate motor powers for mecanum drive
             // --------------------------
-            // Formula based on standard mecanum wheel kinematics
             double frontLeftPower  = (y + x + rx) / denominator;
             double backLeftPower   = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
@@ -71,9 +78,6 @@ public class Teleop extends LinearOpMode {
             // --------------------------
             // e) Intake Servo
             // --------------------------
-
-
-
         }
     }
 }
