@@ -24,12 +24,21 @@ public class Teleop extends LinearOpMode {
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
         launcherServo.setPosition(0);
 
+        //Launch power constant
+        double launcherPower = 0.5;
+
+        //Dpad reset
+        boolean dpadUpPrev = false;
+        boolean dpadDownPrev = false;
+
+
         // motor directions (per-motor, verified)
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        launcherMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         // ensure motors stop immediately when power is zero
@@ -80,52 +89,61 @@ public class Teleop extends LinearOpMode {
             backRightMotor.setPower(backRightPower);
 
             // --------------------------
-            // e) Intake
+            // e) Adjust Flywheel speed
             // --------------------------
 
-            if (gamepad1.a) {
-                intakeMotor.setPower(1);
+            if (gamepad1.dpad_up && !dpadUpPrev) {
+                launcherPower += 0.25;
             }
-            else if (gamepad1.b) {
-                intakeMotor.setPower(-1);
+            else if (gamepad1.dpad_down && !dpadDownPrev) {
+                launcherPower -= 0.25;
             }
-            else {
-                intakeMotor.setPower(0);
-            }
+
+            dpadUpPrev = gamepad1.dpad_up;
+            dpadDownPrev = gamepad1.dpad_down;
+
+            launcherPower = Math.max(0.0, Math.min(launcherPower, 1.0));
 
             // --------------------------
             // f) Launcher Motor (R2)
             // --------------------------
+            double launcherCommand = 0;
+
             if (gamepad1.right_trigger > 0.1) {
-                launcherMotor.setPower(0.75);
+                launcherCommand = launcherPower;
             }
-            else if (gamepad1.right_bumper) {
-                launcherMotor.setPower(0.5);
+
+            if (gamepad1.b) {
+                launcherCommand = -launcherPower;
             }
-            else if (gamepad1.left_trigger > 0.1) {
-                launcherMotor.setPower(-0.75);
+
+            launcherMotor.setPower(launcherCommand);
+
+            // --------------------------
+            // e) Intake
+            // --------------------------
+
+            double intakePower = 0;
+
+            if (gamepad1.left_trigger > 0.1) {
+                intakePower = -1.0;
             }
-            else if (gamepad1.left_bumper) {
-                launcherMotor.setPower(-0.25);
+
+            if (gamepad1.x) {
+                intakePower = 1.0;
             }
-            else {
-                launcherMotor.setPower(0);
-            }
+            intakeMotor.setPower(intakePower);
 
             // --------------------------
             // f) Launcher Servo (R2)
             // --------------------------
 
-            if (gamepad1.x) {
+            if (gamepad1.right_bumper) {
                 launcherServo.setPosition(0.2);
                 }
-            else if (gamepad1.y) {
+            if (gamepad1.left_bumper) {
                 launcherServo.setPosition(0);
             }
-            else {
-                launcherServo.setPosition(0);
-            }
-
 
         }
     }
