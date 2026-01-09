@@ -86,15 +86,12 @@ public class Teleop extends LinearOpMode {
 
             if (gamepad1.a) {
                 frontIntakeMotor.setPower(1);
-                rearIntakeMotor.setPower(0.6);
             }
             else if (gamepad1.b) {
                 frontIntakeMotor.setPower(-1);
-                rearIntakeMotor.setPower(-0.6);
             }
             else {
-                frontIntakeMotor.setPower(0);
-                rearIntakeMotor.setPower(0);
+                launcherMotor.setPower(0);
             }
 
             // --------------------------
