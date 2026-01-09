@@ -19,8 +19,7 @@ public class Teleop extends LinearOpMode {
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
-        DcMotor frontIntakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
+        DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
         launcherServo.setPosition(0);
@@ -85,29 +84,29 @@ public class Teleop extends LinearOpMode {
             // --------------------------
 
             if (gamepad1.a) {
-                frontIntakeMotor.setPower(1);
+                intakeMotor.setPower(1);
             }
             else if (gamepad1.b) {
-                frontIntakeMotor.setPower(-1);
+                intakeMotor.setPower(-1);
             }
             else {
-                frontIntakeMotor.setPower(0);
+                intakeMotor.setPower(0);
             }
 
             // --------------------------
             // f) Launcher Motor (R2)
             // --------------------------
             if (gamepad1.right_trigger > 0.1) {
-                launcherMotor.setPower(1);
+                launcherMotor.setPower(0.75);
             }
             else if (gamepad1.right_bumper) {
-                launcherMotor.setPower(0.8);
+                launcherMotor.setPower(0.5);
             }
             else if (gamepad1.left_trigger > 0.1) {
-                launcherMotor.setPower(-1);
+                launcherMotor.setPower(-0.75);
             }
             else if (gamepad1.left_bumper) {
-                launcherMotor.setPower(-0.8);
+                launcherMotor.setPower(-0.25);
             }
             else {
                 launcherMotor.setPower(0);
@@ -119,7 +118,8 @@ public class Teleop extends LinearOpMode {
 
             if (gamepad1.x) {
                 launcherServo.setPosition(0.2);
-                sleep(2000);
+                }
+            else if (gamepad1.y) {
                 launcherServo.setPosition(0);
             }
             else {
