@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
@@ -21,7 +22,8 @@ public class Teleop extends LinearOpMode {
         DcMotor frontIntakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
-        //Servo servoTest = hardwareMap.servo.get("servoTest");
+        Servo launcherServo = hardwareMap.servo.get("launcherServo");
+        launcherServo.setPosition(0);
 
         // motor directions (per-motor, verified)
         frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -79,17 +81,52 @@ public class Teleop extends LinearOpMode {
             backRightMotor.setPower(backRightPower);
 
             // --------------------------
-            // e) Intake Servo
+            // e) Intake
             // --------------------------
 
-            telemetry.addData("R2 value", gamepad1.right_trigger);
-            telemetry.update();
+            if (gamepad1.a) {
+                frontIntakeMotor.setPower(1);
+                rearIntakeMotor.setPower(0.6);
+            }
+            else if (gamepad1.b) {
+                frontIntakeMotor.setPower(-1);
+                rearIntakeMotor.setPower(-0.6);
+            }
+            else {
+                frontIntakeMotor.setPower(0);
+                rearIntakeMotor.setPower(0);
+            }
 
             // --------------------------
             // f) Launcher Motor (R2)
             // --------------------------
-            double launcherPower = gamepad1.right_trigger;
-                launcherMotor.setPower(launcherPower);
+            if (gamepad1.right_trigger > 0.1) {
+                launcherMotor.setPower(1);
+            }
+            else if (gamepad1.right_bumper) {
+                launcherMotor.setPower(0.8);
+            }
+            else if (gamepad1.left_trigger > 0.1) {
+                launcherMotor.setPower(-1);
+            }
+            else if (gamepad1.left_bumper) {
+                launcherMotor.setPower(-0.8);
+            }
+            else {
+                launcherMotor.setPower(0);
+            }
+
+            // --------------------------
+            // f) Launcher Motor (R2)
+            // --------------------------
+
+            if (gamepad1.x) {
+                launcherServo.setPosition(0.2);
+            }
+            else if (gamepad1.y) {
+                launcherServo.setPosition(0);
+            }
+
 
         }
     }
