@@ -114,13 +114,15 @@ public class Teleop extends LinearOpMode {
             }
 
             // --------------------------
-            // f) Launcher Motor (R2)
+            // f) Launcher Servo (R2)
             // --------------------------
 
             if (gamepad1.x) {
                 launcherServo.setPosition(0.2);
+                sleep(2000);
+                launcherServo.setPosition(0);
             }
-            else if (gamepad1.y) {
+            else {
                 launcherServo.setPosition(0);
             }
 
