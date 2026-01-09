@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
@@ -20,6 +20,7 @@ public class Teleop extends LinearOpMode {
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
         DcMotor frontIntakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor rearIntakeMotor = hardwareMap.dcMotor.get("intakeMotor2");
+        DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
         //Servo servoTest = hardwareMap.servo.get("servoTest");
 
         // motor directions (per-motor, verified)
@@ -27,13 +28,15 @@ public class Teleop extends LinearOpMode {
         backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
 
         // ensure motors stop immediately when power is zero
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        launcherMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         // ==========================
         // 3. Wait for Driver to Start
@@ -78,6 +81,16 @@ public class Teleop extends LinearOpMode {
             // --------------------------
             // e) Intake Servo
             // --------------------------
+
+            telemetry.addData("R2 value", gamepad1.right_trigger);
+            telemetry.update();
+
+            // --------------------------
+            // f) Launcher Motor (R2)
+            // --------------------------
+            double launcherPower = gamepad1.right_trigger;
+                launcherMotor.setPower(launcherPower);
+
         }
     }
 }
