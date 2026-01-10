@@ -24,9 +24,8 @@ public class Teleop extends LinearOpMode {
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
         launcherServo.setPosition(0);
 
-        boolean rightBumperPrev = false;
-        boolean bumperStatus = false;
-
+        boolean servoDown = false;
+        boolean rbPrev = false;
 
         //Launch power constant
         double launcherPower = 0.5;
@@ -137,19 +136,16 @@ public class Teleop extends LinearOpMode {
                 intakeMotor.setPower(0);
             }
 
-
             // --------------------------
             // g) Launcher Servo
             // --------------------------
 
-            if (gamepad1.right_bumper && !rightBumperPrev) {
-                bumperStatus = !bumperStatus;
-                launcherServo.setPosition(bumperStatus ? 0.2 : 0.0);
+            if (gamepad1.right_bumper && !rbPrev) {
+                servoDown = !servoDown;
+                launcherServo.setPosition(servoDown ? 0.2 : 0.0);
             }
 
-            rightBumperPrev = gamepad1.right_bumper;
-
-
+            rbPrev = gamepad1.right_bumper;
 
         }
     }
