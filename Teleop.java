@@ -123,16 +123,13 @@ public class Teleop extends LinearOpMode {
             // e) Intake
             // --------------------------
 
-            double intakePower = 0;
-
             if (gamepad1.left_trigger > 0.1) {
-                intakePower = -1.0;
+                intakeMotor.setPower(-1);
+            }
+            else {
+                intakeMotor.setPower(0);
             }
 
-            if (gamepad1.x) {
-                intakePower = 1.0;
-            }
-            intakeMotor.setPower(intakePower);
 
             // --------------------------
             // f) Launcher Servo (R2)
