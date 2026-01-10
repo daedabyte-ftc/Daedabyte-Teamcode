@@ -38,7 +38,7 @@ public class Teleop extends LinearOpMode {
         frontRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        launcherMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
         // ensure motors stop immediately when power is zero
@@ -105,7 +105,7 @@ public class Teleop extends LinearOpMode {
             launcherPower = Math.max(0.0, Math.min(launcherPower, 1.0));
 
             // --------------------------
-            // f) Launcher Motor (R2)
+            // f) Launcher Motor
             // --------------------------
             double launcherCommand = 0;
 
