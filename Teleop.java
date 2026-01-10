@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
@@ -24,8 +25,9 @@ public class Teleop extends LinearOpMode {
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
         launcherServo.setPosition(0);
 
-        boolean servoDown = false;
-        boolean rbPrev = false;
+        ElapsedTime servoTimer = new ElapsedTime();
+        boolean servoActive = false;
+        double servoUpTime = 0.5; // seconds
 
         //Launch power constant
         double launcherPower = 0.5;
@@ -140,13 +142,18 @@ public class Teleop extends LinearOpMode {
             // g) Launcher Servo
             // --------------------------
 
-            if (gamepad1.right_bumper && !rbPrev) {
-                servoDown = !servoDown;
-                launcherServo.setPosition(servoDown ? 0.2 : 0.0);
+            if (gamepad1.right_bumper && !servoActive) {
+                launcherServo.setPosition(0.2); // move up
+                servoTimer.reset();              // start timer
+                servoActive = true;              // mark as active
             }
 
-            rbPrev = gamepad1.right_bumper;
+            // check if servo has been up long enough
+            if (servoActive && servoTimer.seconds() >= servoUpTime) {
+                launcherServo.setPosition(0.0); // move back down
+                servoActive = false;             // reset
+            }
+            }
 
         }
     }
-}
