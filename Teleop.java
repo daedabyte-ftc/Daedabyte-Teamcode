@@ -63,9 +63,9 @@ public class Teleop extends LinearOpMode {
             // --------------------------
             // a) Read joystick inputs
             // --------------------------
-            double y = -gamepad1.left_stick_y; // Forward/backward
-            double x = gamepad1.left_stick_x;  // Left/right strafing
-            double rx = gamepad1.right_stick_x; // Rotation (left/right)
+            double y = gamepad1.left_stick_y; // Forward/backward
+            double x = -gamepad1.left_stick_x;  // Left/right strafing
+            double rx = -gamepad1.right_stick_x; // Rotation (left/right)
 
             // --------------------------
             // b) Calculate denominator for scaling
