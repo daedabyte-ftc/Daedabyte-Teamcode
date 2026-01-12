@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -7,18 +6,38 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @TeleOp
 public class Teleop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        // Declare our motors
-        // Make sure your ID's match your configuration
+        // Motor declaration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
+
+
+        DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+        DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
+        Servo launcherServo = hardwareMap.servo.get("launcherServo");
+        launcherServo.setPosition(0);
+
+        ElapsedTime servoTimer = new ElapsedTime();
+        boolean servoActive = false;
+        double servoUpTime = 0.5; // seconds
+
+        //Launch power constant
+        double launcherPower = 0.5;
+
+        //Dpad reset
+        boolean dpadUpPrev = false;
+        boolean dpadDownPrev = false;
+
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -38,8 +57,10 @@ public class Teleop extends LinearOpMode {
 
         waitForStart();
 
+        //Teleop loop
         if (isStopRequested()) return;
 
+        //read joystick inputs
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = gamepad1.left_stick_x;
@@ -52,6 +73,7 @@ public class Teleop extends LinearOpMode {
                 imu.resetYaw();
             }
 
+            //Mecanum wheel math
             double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
             // Rotate the movement direction counter to the bot's rotation
@@ -73,6 +95,71 @@ public class Teleop extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+            // --------------------------
+            // e) Adjust Flywheel speed
+            // --------------------------
+
+            if (gamepad1.dpad_up && !dpadUpPrev) {
+                launcherPower += 0.25;
+            }
+            else if (gamepad1.dpad_down && !dpadDownPrev) {
+                launcherPower -= 0.25;
+            }
+
+            dpadUpPrev = gamepad1.dpad_up;
+            dpadDownPrev = gamepad1.dpad_down;
+
+            launcherPower = Math.max(0.0, Math.min(launcherPower, 1.0));
+
+            // --------------------------
+            // f) Launcher Motor
+            // --------------------------
+            double launcherCommand = 0;
+
+            if (gamepad1.right_trigger > 0.1) {
+                launcherCommand = launcherPower;
+            }
+
+            if (gamepad1.b) {
+                launcherCommand = -launcherPower;
+            }
+
+            launcherMotor.setPower(launcherCommand);
+
+            // --------------------------
+            // e) Intake
+            // --------------------------
+
+            if (gamepad1.left_trigger > 0.1) {
+                intakeMotor.setPower(1);
+            }
+            else if (gamepad1.left_bumper) {
+                intakeMotor.setPower(-1);
+            }
+            else {
+                intakeMotor.setPower(0);
+            }
+
+            // --------------------------
+            // g) Launcher Servo
+            // --------------------------
+
+            if (gamepad1.right_bumper && !servoActive) {
+                launcherServo.setPosition(0.2); // move up
+                servoTimer.reset();              // start timer
+                servoActive = true;              // mark as active
+            }
+
+            // check if servo has been up long enough
+            if (servoActive && servoTimer.seconds() >= servoUpTime) {
+                launcherServo.setPosition(0.0); // move back down
+                servoActive = false;             // reset
+            }
+        }
+
+    }
+}
         }
     }
 }
