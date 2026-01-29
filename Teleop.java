@@ -1,29 +1,30 @@
 package org.firstinspires.ftc.teamcode;
 
+// Import classes for LinearOpMode, TeleOp annotation, and motor control
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 @TeleOp
 public class Teleop extends LinearOpMode {
+
     @Override
     public void runOpMode() throws InterruptedException {
-        // Motor declaration
+
+        //===========  Initialize hardware ===========//
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftBack");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
 
-
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
+
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
+
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
         launcherServo.setPosition(0);
 
@@ -39,58 +40,60 @@ public class Teleop extends LinearOpMode {
         boolean dpadDownPrev = false;
 
 
-        // Reverse the right side motors. This may be wrong for your setup.
-        // If your robot moves backwards when commanded to go forwards,
-        // reverse the left side instead.
-        // See the note about this earlier on this page.
+        // motor directions (per-motor, verified)
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        // Retrieve the IMU from the hardware map
-        IMU imu = hardwareMap.get(IMU.class, "imu");
-        // Adjust the orientation parameters to match your robot
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);
+        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        waitForStart();
 
-        //Teleop loop
-        if (isStopRequested()) return;
+        // ensure motors stop immediately when power is zero
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        launcherMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        //read joystick inputs
+        // ==========================
+        // 3. Wait for Driver to Start
+        // ==========================
+        waitForStart(); // Pauses the program until the play button is pressed
+
+        if (isStopRequested()) return; // If stop is requested immediately, exit
+
+
+
+        // ==========================
+        // 4. Main TeleOp Loop
+        // ==========================
         while (opModeIsActive()) {
-            double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
 
-            // This button choice was made so that it is hard to hit on accident,
-            // it can be freely changed based on preference.
-            // The equivalent button is start on Xbox-style controllers.
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }
+            // --------------------------
+            // a) Read joystick inputs
+            // --------------------------
+            double y = -gamepad1.left_stick_y;   // forward is positive
+            double x = gamepad1.left_stick_x;    // strafe right is positive
+            double rx = gamepad1.right_stick_x;  // rotate right is positive
 
-            //Mecanum wheel math
-            double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-            // Rotate the movement direction counter to the bot's rotation
-            double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+            // --------------------------
+            // b) Calculate denominator for scaling
+            // --------------------------
+            double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-            rotX = rotX * 1.1;  // Counteract imperfect strafing
+            // --------------------------
+            // c) Calculate motor powers for mecanum drive
+            // --------------------------
+            double frontLeftPower  = (y + x + rx) / denominator;
+            double backLeftPower   = (y - x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower  = (y + x - rx) / denominator;
 
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX + rx) / denominator;
-            double backLeftPower = (rotY - rotX + rx) / denominator;
-            double frontRightPower = (rotY - rotX - rx) / denominator;
-            double backRightPower = (rotY + rotX - rx) / denominator;
-
+            // --------------------------
+            // d) Apply power to motors
+            // --------------------------
             frontLeftMotor.setPower(frontLeftPower);
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
@@ -118,11 +121,11 @@ public class Teleop extends LinearOpMode {
             double launcherCommand = 0;
 
             if (gamepad1.right_trigger > 0.1) {
-                launcherCommand = launcherPower;
+                launcherCommand = -launcherPower;
             }
 
             if (gamepad1.b) {
-                launcherCommand = -launcherPower;
+                launcherCommand = launcherPower;
             }
 
             launcherMotor.setPower(launcherCommand);
@@ -132,10 +135,10 @@ public class Teleop extends LinearOpMode {
             // --------------------------
 
             if (gamepad1.left_trigger > 0.1) {
-                intakeMotor.setPower(1);
+                intakeMotor.setPower(-1);
             }
             else if (gamepad1.left_bumper) {
-                intakeMotor.setPower(-1);
+                intakeMotor.setPower(1);
             }
             else {
                 intakeMotor.setPower(0);
@@ -158,5 +161,7 @@ public class Teleop extends LinearOpMode {
             }
         }
 
+    }
+}
     }
 }
