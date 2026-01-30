@@ -104,10 +104,10 @@ public class Teleop extends LinearOpMode {
             // --------------------------
 
             if (gamepad1.dpad_up && !dpadUpPrev) {
-                launcherPower += 0.25;
+                launcherPower += 0.125;
             }
             else if (gamepad1.dpad_down && !dpadDownPrev) {
-                launcherPower -= 0.25;
+                launcherPower -= 0.125;
             }
 
             dpadUpPrev = gamepad1.dpad_up;
@@ -129,6 +129,8 @@ public class Teleop extends LinearOpMode {
             }
 
             launcherMotor.setPower(launcherCommand);
+            telemetry.addData("Launcher Mode Power", "%.2f", launcherPower);
+            telemetry.update();
 
             // --------------------------
             // e) Intake
@@ -161,7 +163,5 @@ public class Teleop extends LinearOpMode {
             }
         }
 
-    }
-}
     }
 }
