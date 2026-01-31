@@ -1,0 +1,61 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
+
+@Autonomous
+public class Auton extends LinearOpMode {
+
+    // 1. DECLARE motors here so the whole class can see them
+    private DcMotor leftFront, leftBack, rightFront, rightBack;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        // Initialize drivetrain motors
+        leftFront = hardwareMap.dcMotor.get("leftFront");
+        leftBack = hardwareMap.dcMotor.get("leftBack");
+        rightFront = hardwareMap.dcMotor.get("rightFront");
+        rightBack = hardwareMap.dcMotor.get("rightBack");
+
+        // Directions and behavior
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        waitForStart();
+
+        // Autonomous sequence
+
+        Forward(5000);
+        stopDrive();
+
+    }
+
+    // Function declarations
+    private void stopDrive() {
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+
+    public void Forward(int timeMs) {
+        leftFront.setPower(0.5);
+        leftBack.setPower(0.5);
+        rightFront.setPower(0.5);
+        rightBack.setPower(0.5);
+
+        sleep(timeMs);
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+    }
+
+}
