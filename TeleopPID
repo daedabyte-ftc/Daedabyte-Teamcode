@@ -1,13 +1,18 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 @TeleOp
+@Disabled
 public class PIDTest extends OpMode {
-    public DcMotorEx flywheelMotor;
+
+    DcMotorEx flywheelMotor;
     double highVelocity = 1500;
     double lowVelocity = 900;
 
@@ -24,7 +29,7 @@ public class PIDTest extends OpMode {
 
     @Override
     public void init() {
-        flywheelMotor = hardwareMap.get(DcMotorEx.class, "motor");
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, "launcherMotor");
         flywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         flywheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -56,7 +61,7 @@ public class PIDTest extends OpMode {
         if (gamepad1.dpadUpWasPressed()) {
             P += stepSizes[stepIndex];
         }
-        if (gamepad1.dpadUpWasPressed()) {
+        if (gamepad1.dpadDownWasPressed()) {
             P -= stepSizes[stepIndex];
         }
 
