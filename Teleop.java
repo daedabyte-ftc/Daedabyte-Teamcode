@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -38,6 +37,8 @@ public class Teleop extends LinearOpMode {
         //Dpad reset
         boolean dpadUpPrev = false;
         boolean dpadDownPrev = false;
+        boolean rtPrev = false;
+        boolean launcherOn = false;
 
 
         // motor directions (per-motor, verified)
@@ -115,20 +116,23 @@ public class Teleop extends LinearOpMode {
 
             launcherPower = Math.max(0.0, Math.min(launcherPower, 1.0));
 
-            // --------------------------
+            // ------------------
             // f) Launcher Motor
-            // --------------------------
-            double launcherCommand = 0;
+            // ------------------
+            boolean rtNow = gamepad1.right_trigger > 0.5;
 
-            if (gamepad1.right_trigger > 0.1) {
-                launcherCommand = -launcherPower;
+            if (rtNow && !rtPrev) {
+                launcherOn = !launcherOn;
             }
 
-            if (gamepad1.b) {
-                launcherCommand = launcherPower;
+            if (launcherOn) {
+                launcherMotor.setPower(launcherPower);
+            } else {
+                launcherMotor.setPower(0);
             }
 
-            launcherMotor.setPower(launcherCommand);
+            rtPrev = rtNow;
+
             telemetry.addData("Launcher Mode Power", "%.2f", launcherPower);
             telemetry.update();
 
