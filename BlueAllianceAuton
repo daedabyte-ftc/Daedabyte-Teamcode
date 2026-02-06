@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 @Autonomous
 public class BlueAllianceAuton extends LinearOpMode {
 
@@ -21,12 +22,12 @@ public class BlueAllianceAuton extends LinearOpMode {
         rightFront = hardwareMap.dcMotor.get("rightFront");
         rightBack = hardwareMap.dcMotor.get("rightBack");
 
-        //initialize other motors
+        // Initialize other motors
         intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
         launcherServo = hardwareMap.servo.get("launcherServo");
 
-        //initialize launcher pos
+        // Initialize launcher pos
         launcherServo.setPosition(0);
 
         // Directions and behavior
@@ -37,14 +38,18 @@ public class BlueAllianceAuton extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //Dpad initialization
-        boolean dpadUpPrev = false;
-        boolean dpadDownPrev = false;
-
         waitForStart();
 
         // Autonomous sequence
 
+        launcherMotor.setPower(0.63);
+        Reverse(3000);
+        stopDrive();
+        TurnRight(45);
+        stopDrive();
+        shootBall();
+        shootBall();
+        shootBall();
 
     }
 
@@ -109,28 +114,11 @@ public class BlueAllianceAuton extends LinearOpMode {
         stopDrive();
     }
 
-    public void shootBall(double launcherPower) {
-        // Spin up flywheel
-        launcherMotor.setPower(launcherPower);
-        sleep(800); // spin-up time
-
-        // Fire
+    public void shootBall() {
         launcherServo.setPosition(0.2);
-        sleep(500); // same as TeleOp servoUpTime
+        sleep(500);
         launcherServo.setPosition(0.0);
-
-        sleep(300);
+        sleep(1000);
     }
-
-    public void activateIntake() {
-        intakeMotor.setPower(1.0);
-    }
-
-
-    public void stopIntake() {
-        intakeMotor.setPower(0.0);
-    }
-
-
 
 }
