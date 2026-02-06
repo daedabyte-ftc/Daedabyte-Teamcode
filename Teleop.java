@@ -99,9 +99,9 @@ public class Teleop extends LinearOpMode {
             } else if (gamepad1.dpad_down && !dpadDownPrev) {
                 launcherPower -= 0.125;
             } else if (gamepad1.dpad_left && !dpadLeftPrev) {
-                launcherPower = 3.00;
+                launcherPower = 0.9;
             } else if (gamepad1.dpad_right && !dpadRightPrev) {
-                launcherPower = 0.63;
+                launcherPower = 0.55;
             }
 
             dpadUpPrev = gamepad1.dpad_up;
