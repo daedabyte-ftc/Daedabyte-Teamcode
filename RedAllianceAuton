@@ -1,16 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 @Autonomous
 public class RedAllianceAuton extends LinearOpMode {
 
-    // 1. DECLARE motors here so the whole class can see them
     private DcMotor leftFront, leftBack, rightFront, rightBack;
-    private DcMotor intakeMotor, launcherMotor;
     private Servo launcherServo;
 
     @Override
@@ -22,30 +22,43 @@ public class RedAllianceAuton extends LinearOpMode {
         rightBack = hardwareMap.dcMotor.get("rightBack");
 
         //initialize other motors
-        intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-        launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
+        DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
         launcherServo = hardwareMap.servo.get("launcherServo");
 
         //initialize launcher pos
         launcherServo.setPosition(0);
 
-        // Directions and behavior
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        // motor directions (per-motor, verified)
+        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftBack.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        //brake behaviour
+        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        //Dpad initialization
-        boolean dpadUpPrev = false;
-        boolean dpadDownPrev = false;
-
         waitForStart();
 
         // Autonomous sequence
 
+        launcherMotor.setPower(0.63);
+        Reverse(3000);
+        stopDrive();
+        TurnRight(45);
+        stopDrive();
+        shootBall();
+        shootBall();
+        shootBall();
 
+        stopDrive();
+
+        while (opModeIsActive()) {
+            idle();
+        }
     }
 
     // Function declarations
@@ -109,28 +122,10 @@ public class RedAllianceAuton extends LinearOpMode {
         stopDrive();
     }
 
-    public void shootBall(double launcherPower) {
-        // Spin up flywheel
-        launcherMotor.setPower(launcherPower);
-        sleep(800); // spin-up time
-
-        // Fire
+    public void shootBall() {
         launcherServo.setPosition(0.2);
-        sleep(500); // same as TeleOp servoUpTime
+        sleep(500);
         launcherServo.setPosition(0.0);
-
-        sleep(300);
+        sleep(1000);
     }
-
-    public void activateIntake() {
-        intakeMotor.setPower(1.0);
-    }
-
-
-    public void stopIntake() {
-        intakeMotor.setPower(0.0);
-    }
-
-
-
 }
