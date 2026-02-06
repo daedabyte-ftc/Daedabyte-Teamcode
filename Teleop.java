@@ -21,7 +21,6 @@ public class Teleop extends LinearOpMode {
         DcMotor backRightMotor = hardwareMap.dcMotor.get("rightBack");
 
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
-
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
 
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
@@ -29,26 +28,33 @@ public class Teleop extends LinearOpMode {
 
         ElapsedTime servoTimer = new ElapsedTime();
         boolean servoActive = false;
-        double servoUpTime = 0.5; // seconds
+        double servoUpTime = 0.15; // seconds
+        double SERVO_UP = 0.5;     // forward position (tune this)
+        double SERVO_DOWN = 0.0;   // resting position (tune this)
+        double SERVO_UP_TIME = 0.12;
+        boolean bBumperState = false;
+        boolean leftBumperState = false;
+        boolean rightBumperState = false;
+        boolean launchForward = false;
+        boolean intakeForward = false;
+        boolean intakeBackwards = false;
 
-        //Launch power constant
-        double launcherPower = 0.5;
+        // Launch power constant
+        double launcherPower = 0.8;
 
-        //Dpad reset
+        // D-pad state tracking
         boolean dpadUpPrev = false;
         boolean dpadDownPrev = false;
-        boolean rtPrev = false;
-        boolean launcherOn = false;
-
+        boolean dpadLeftPrev = false;
+        boolean dpadRightPrev = false;
 
         // motor directions (per-motor, verified)
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        launcherMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-
+        launcherMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // ensure motors stop immediately when power is zero
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -57,115 +63,114 @@ public class Teleop extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         launcherMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        // ==========================
-        // 3. Wait for Driver to Start
-        // ==========================
-        waitForStart(); // Pauses the program until the play button is pressed
+        launcherServo.setPosition(SERVO_DOWN);
 
-        if (isStopRequested()) return; // If stop is requested immediately, exit
-
-
+        waitForStart();
+        if (isStopRequested()) return;
 
         // ==========================
-        // 4. Main TeleOp Loop
+        // Main TeleOp Loop
         // ==========================
         while (opModeIsActive()) {
 
-            // --------------------------
             // a) Read joystick inputs
-            // --------------------------
-            double y = -gamepad1.left_stick_y;   // forward is positive
-            double x = gamepad1.left_stick_x;    // strafe right is positive
-            double rx = gamepad1.right_stick_x;  // rotate right is positive
+            double y  = -gamepad1.left_stick_y;
+            double x  =  gamepad1.left_stick_x;
+            double rx =  gamepad1.right_stick_x;
 
-
-            // --------------------------
-            // b) Calculate denominator for scaling
-            // --------------------------
+            // b) Calculate denominator
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-            // --------------------------
-            // c) Calculate motor powers for mecanum drive
-            // --------------------------
+            // c) Mecanum math
             double frontLeftPower  = (y + x + rx) / denominator;
             double backLeftPower   = (y - x + rx) / denominator;
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower  = (y + x - rx) / denominator;
 
-            // --------------------------
-            // d) Apply power to motors
-            // --------------------------
+            // d) Apply drive power
             frontLeftMotor.setPower(frontLeftPower);
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            // --------------------------
-            // e) Adjust Flywheel speed
-            // --------------------------
-
+            // e) Adjust flywheel speed
             if (gamepad1.dpad_up && !dpadUpPrev) {
                 launcherPower += 0.125;
-            }
-            else if (gamepad1.dpad_down && !dpadDownPrev) {
+            } else if (gamepad1.dpad_down && !dpadDownPrev) {
                 launcherPower -= 0.125;
+            } else if (gamepad1.dpad_left && !dpadLeftPrev) {
+                launcherPower = 3.00;
+            } else if (gamepad1.dpad_right && !dpadRightPrev) {
+                launcherPower = 0.63;
             }
 
             dpadUpPrev = gamepad1.dpad_up;
             dpadDownPrev = gamepad1.dpad_down;
+            dpadLeftPrev = gamepad1.dpad_left;
+            dpadRightPrev = gamepad1.dpad_right;
 
-            launcherPower = Math.max(0.0, Math.min(launcherPower, 1.0));
 
-            // ------------------
-            // f) Launcher Motor
-            // ------------------
-            boolean rtNow = gamepad1.right_trigger > 0.5;
+            // f) Launcher motor
+            double launcherCommand = 0;
 
-            if (rtNow && !rtPrev) {
-                launcherOn = !launcherOn;
+            if (gamepad1.b && !bBumperState) {
+                launchForward = !launchForward;
             }
 
-            if (launcherOn) {
+            bBumperState = gamepad1.b;
+
+            if (launchForward) {
                 launcherMotor.setPower(launcherPower);
             } else {
-                launcherMotor.setPower(0);
+                launcherMotor.setPower(0.0);
             }
 
-            rtPrev = rtNow;
-
-            telemetry.addData("Launcher Mode Power", "%.2f", launcherPower);
+            // ======= ADDED TELEMETRY (ONLY ADDITION) =======
+            telemetry.addData("Launcher Power (set)", "%.2f", launcherPower);
+            telemetry.addData("Launcher Motor Output", "%.2f", launcherCommand);
             telemetry.update();
+            // ==============================================
 
-            // --------------------------
-            // e) Intake
-            // --------------------------
+            if (gamepad1.left_bumper && !leftBumperState) {
+                if (intakeForward) {
+                    intakeForward = false;
+                } else {
+                    intakeForward = true;
+                    intakeBackwards = false;
+                }
 
-            if (gamepad1.left_trigger > 0.1) {
-                intakeMotor.setPower(-1);
-            }
-            else if (gamepad1.left_bumper) {
-                intakeMotor.setPower(1);
-            }
-            else {
-                intakeMotor.setPower(0);
             }
 
-            // --------------------------
-            // g) Launcher Servo
-            // --------------------------
-
-            if (gamepad1.right_bumper && !servoActive) {
-                launcherServo.setPosition(0.2); // move up
-                servoTimer.reset();              // start timer
-                servoActive = true;              // mark as active
+            if (gamepad1.right_bumper && !rightBumperState) {
+                if(intakeBackwards) {
+                    intakeBackwards = false;
+                } else {
+                    intakeBackwards = true;
+                    intakeForward = false;
+                }
             }
 
-            // check if servo has been up long enough
-            if (servoActive && servoTimer.seconds() >= servoUpTime) {
-                launcherServo.setPosition(0.0); // move back down
-                servoActive = false;             // reset
+            leftBumperState = gamepad1.left_bumper;
+            rightBumperState = gamepad1.right_bumper;
+
+            if (intakeForward) {
+                intakeMotor.setPower(1.0);
+            } else if (intakeBackwards){
+                intakeMotor.setPower(-1.0);
+            } else {
+                intakeMotor.setPower(0.0);
+            }
+
+            if (gamepad1.a && !servoActive) {
+                launcherServo.setPosition(SERVO_UP);
+                servoTimer.reset();
+                servoActive = true;
+            }
+
+            if (servoActive && servoTimer.seconds() >= SERVO_UP_TIME) {
+                launcherServo.setPosition(SERVO_DOWN);
+                servoActive = false;
             }
         }
-
     }
 }
