@@ -40,7 +40,7 @@ public class Teleop extends LinearOpMode {
         boolean intakeBackwards = false;
 
         // Launch power constant
-        double launcherPower = 0.8;
+        double launcherPower = 0.55;
 
         // D-pad state tracking
         boolean dpadUpPrev = false;
@@ -99,7 +99,7 @@ public class Teleop extends LinearOpMode {
             } else if (gamepad1.dpad_down && !dpadDownPrev) {
                 launcherPower -= 0.125;
             } else if (gamepad1.dpad_left && !dpadLeftPrev) {
-                launcherPower = 0.9;
+                launcherPower = 0.75;
             } else if (gamepad1.dpad_right && !dpadRightPrev) {
                 launcherPower = 0.55;
             }
