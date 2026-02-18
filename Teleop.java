@@ -22,15 +22,16 @@ public class Teleop extends LinearOpMode {
 
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
+        DcMotor launcherMotor2 = hardwareMap.dcMotor.get("launcherMotor2");
 
         Servo launcherServo = hardwareMap.servo.get("launcherServo");
-        launcherServo.setPosition(0);
+        launcherServo.setPosition(0.3);
 
         ElapsedTime servoTimer = new ElapsedTime();
         boolean servoActive = false;
         double servoUpTime = 0.15; // seconds
-        double SERVO_UP = 0.5;     // forward position (tune this)
-        double SERVO_DOWN = 0.0;   // resting position (tune this)
+        double SERVO_UP = 0.8;     // forward position (tune this)
+        double SERVO_DOWN = 0.3;   // resting position (tune this)
         double SERVO_UP_TIME = 0.12;
         boolean bBumperState = false;
         boolean leftBumperState = false;
@@ -40,7 +41,7 @@ public class Teleop extends LinearOpMode {
         boolean intakeBackwards = false;
 
         // Launch power constant
-        double launcherPower = 0.55;
+        double launcherPower = 0.63;
 
         // D-pad state tracking
         boolean dpadUpPrev = false;
@@ -55,6 +56,7 @@ public class Teleop extends LinearOpMode {
         backRightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         launcherMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // ensure motors stop immediately when power is zero
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -62,6 +64,7 @@ public class Teleop extends LinearOpMode {
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         launcherMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         launcherServo.setPosition(SERVO_DOWN);
 
@@ -99,9 +102,9 @@ public class Teleop extends LinearOpMode {
             } else if (gamepad1.dpad_down && !dpadDownPrev) {
                 launcherPower -= 0.125;
             } else if (gamepad1.dpad_left && !dpadLeftPrev) {
-                launcherPower = 0.75;
+                launcherPower = 0.93;
             } else if (gamepad1.dpad_right && !dpadRightPrev) {
-                launcherPower = 0.55;
+                launcherPower = 0.63;
             }
 
             dpadUpPrev = gamepad1.dpad_up;
@@ -121,8 +124,10 @@ public class Teleop extends LinearOpMode {
 
             if (launchForward) {
                 launcherMotor.setPower(launcherPower);
+                launcherMotor2.setPower(launcherPower);
             } else {
                 launcherMotor.setPower(0.0);
+                launcherMotor2.setPower(0.0);
             }
 
             // ======= ADDED TELEMETRY (ONLY ADDITION) =======
