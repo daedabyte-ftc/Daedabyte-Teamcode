@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Autonomous
 public class RedAuton extends LinearOpMode {
 
-
     private DcMotor leftFront, leftBack, rightFront, rightBack;
     private Servo launcherServo;
 
@@ -23,11 +22,12 @@ public class RedAuton extends LinearOpMode {
 
         //initialize other motors
         DcMotor launcherMotor = hardwareMap.dcMotor.get("launcherMotor");
+        DcMotor launcherMotor2 = hardwareMap.dcMotor.get("launcherMotor2");
         launcherServo = hardwareMap.servo.get("launcherServo");
         DcMotor intakeMotor = hardwareMap.dcMotor.get("intakeMotor");
 
         //initialize launcher pos
-        launcherServo.setPosition(0);
+        launcherServo.setPosition(0.3);
 
         // motor directions (per-motor, verified)
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -36,6 +36,7 @@ public class RedAuton extends LinearOpMode {
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
 
         launcherMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        launcherMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // ensure motors stop immediately when power is zero
@@ -44,21 +45,26 @@ public class RedAuton extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         launcherMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        launcherMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         waitForStart();
 
 
         // Autonomous sequence
         intakeMotor.setPower(1.0);
-        launcherMotor.setPower(0.5);
-        launcherRev(500);
+        launcherMotor.setPower(0.63);
+        launcherMotor2.setPower(0.63);
+        launcherRev(800);
         Forward(1300);
         stopDrive();
         shootBall();
+        launcherRev(400);
         shootBall();
+        launcherRev(400);
         shootBall();
+        launcherRev(400);
         shootBall();
-        Left(700);
+        Right(1000);
         stopDrive();
         while (opModeIsActive()) {
             idle();
@@ -118,9 +124,9 @@ public class RedAuton extends LinearOpMode {
         rightBack.setPower(0);
     }
     public void shootBall() {
-        launcherServo.setPosition(0.2);
+        launcherServo.setPosition(0.8);
         sleep(1000);
-        launcherServo.setPosition(0.0);
+        launcherServo.setPosition(0.3);
         sleep(1000);
 
     }
